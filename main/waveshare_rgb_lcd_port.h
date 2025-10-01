@@ -1,10 +1,11 @@
 #ifndef _RGB_LCD_H_
 #define _RGB_LCD_H_
 
+#include "esp_err.h"
 #include "esp_log.h"
 #include "esp_heap_caps.h"
 #include "driver/gpio.h"
-#include "driver/i2c.h"
+#include "driver/i2c_master.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_lcd_panel_ops.h"
@@ -18,9 +19,8 @@
 #define I2C_MASTER_SDA_IO           8       /*!< GPIO number used for I2C master data  */
 #define I2C_MASTER_NUM              0       /*!< I2C master i2c port number, the number of i2c peripheral interfaces available will depend on the chip */
 #define I2C_MASTER_FREQ_HZ          400000                     /*!< I2C master clock frequency */
-#define I2C_MASTER_TX_BUF_DISABLE   0                          /*!< I2C master doesn't need buffer */
-#define I2C_MASTER_RX_BUF_DISABLE   0                          /*!< I2C master doesn't need buffer */
 #define I2C_MASTER_TIMEOUT_MS       1000
+#define CH422G_I2C_ADDRESS          0x24
 
 #define GPIO_INPUT_IO_4    4
 #define GPIO_INPUT_PIN_SEL  (1ULL<<EXAMPLE_PIN_NUM_TOUCH_RST)
@@ -63,7 +63,7 @@
 #define EXAMPLE_LCD_IO_RGB_DATA15       (GPIO_NUM_40)
 
 #define EXAMPLE_LCD_IO_RST              (-1)             // -1 if not used
-#define EXAMPLE_PIN_NUM_BK_LIGHT        (-1)    // -1 if not used
+#define EXAMPLE_PIN_NUM_BK_LIGHT        (GPIO_NUM_13)    // Backlight control pin
 #define EXAMPLE_LCD_BK_LIGHT_ON_LEVEL   (1)
 #define EXAMPLE_LCD_BK_LIGHT_OFF_LEVEL  !EXAMPLE_LCD_BK_LIGHT_ON_LEVEL
 

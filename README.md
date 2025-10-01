@@ -26,18 +26,17 @@ Complete LVGL (Light and Versatile Graphics Library) port for ESP32-S3 with Wave
 
 | ESP32-S3 Pin | LCD Signal | Description |
 |-------------|------------|-------------|
-| GPIO 1      | LCD_RST   | LCD Reset |
-| GPIO 2      | LCD_RS    | LCD Register Select |
-| GPIO 3      | LCD_CS    | LCD Chip Select |
+| GPIO 3      | LCD_VSYNC | LCD Vertical Sync |
 | GPIO 4      | TP_RST    | Touch Reset (GT911) |
-| GPIO 5      | LCD_SCLK  | LCD SPI Clock |
+| GPIO 5      | LCD_DE    | LCD Data Enable |
 | GPIO 6      | TP_INT    | Touch Interrupt (GT911) |
-| GPIO 7      | LCD_MOSI  | LCD SPI MOSI |
+| GPIO 7      | LCD_PCLK  | LCD Pixel Clock |
 | GPIO 8      | TP_SDA    | Touch I2C SDA (GT911) |
 | GPIO 9      | TP_SCL    | Touch I2C SCL (GT911) |
-| GPIO 10     | LCD_DC    | LCD Data/Command |
-| GPIO 11     | TP_CS     | Touch Chip Select |
-| GPIO 12     | LCD_BL    | LCD Backlight Control |
+| GPIO 13     | LCD_BL    | LCD Backlight Control (GPIO) |
+| GPIO 14-48  | LCD_DATA0-15 | LCD RGB Data (16-bit) |
+
+**Note**: RGB data pins (GPIO 14-48) and sync pins are configured for the Waveshare 4.3" RGB LCD display.
 
 ## 🚀 Quick Start
 
@@ -68,6 +67,49 @@ Complete LVGL (Light and Versatile Graphics Library) port for ESP32-S3 with Wave
    idf.py monitor  # View serial output
    ```
 
+## 🔧 Technical Implementation Details
+
+### GT911 Touch Controller Fix
+
+**Problem Solved**: The GT911 touch controller was causing ESP32-S3 crashes due to I2C communication failures.
+
+**Root Cause**: GT911 uses two possible I2C addresses (0x5D or 0x14) depending on the INT pin state during reset, but the firmware wasn't implementing the proper reset sequence.
+
+**Solution Implemented**:
+
+1. **Proper Reset Sequence**:
+   ```c
+   // Hold reset low, drive INT for address selection, release reset
+   gt911_select_addr_and_reset(true);  // Try 0x5D first
+   ```
+
+2. **I2C Address Auto-Detection**:
+   ```c
+   // Scan both addresses and use the one that responds
+   uint8_t gt911_addr = gt911_scan_i2c_address();
+   ```
+
+3. **Lower I2C Speed**:
+   ```c
+   // Use 100kHz for reliable touch initialization
+   tp_io_config.scl_speed_hz = 100000;
+   ```
+
+4. **GPIO Backlight Control**:
+   ```c
+   // Separated backlight from I2C to avoid conflicts
+   gpio_set_level(EXAMPLE_PIN_NUM_BK_LIGHT, 1);
+   ```
+
+### Initialization Order
+
+The correct initialization sequence is critical:
+
+1. **Display Panel** → RGB LCD driver initialization
+2. **Backlight** → GPIO control (pin 13)
+3. **Touch Controller** → GT911 with proper reset sequence
+4. **LVGL** → Graphics library initialization
+
 ## 📁 Project Structure
 
 ```
@@ -77,13 +119,15 @@ esp32s3-lvgl-waveshare-display/
 │   ├── main.c                    # Application entry point
 │   ├── lvgl_port.c              # LVGL port implementation
 │   ├── lvgl_port.h              # LVGL configuration
-│   ├── waveshare_rgb_lcd_port.c # LCD driver implementation
-│   └── waveshare_rgb_lcd_port.h # LCD hardware definitions
+│   ├── waveshare_rgb_lcd_port.c # LCD & touch driver implementation
+│   └── waveshare_rgb_lcd_port.h # Hardware definitions
 ├── components/                   # ESP-IDF components
-│   ├── lvgl__lvgl/              # LVGL library
+│   ├── lvgl__lvgl/              # LVGL graphics library
 │   └── espressif__esp_lcd_touch_gt911/ # GT911 touch driver
 ├── .gitignore                   # Git ignore rules
 ├── CMakeLists.txt              # Project CMake configuration
+├── LICENSE                      # MIT license
+├── README.md                    # This documentation
 └── sdkconfig.defaults          # Default SDK configuration
 ```
 
@@ -139,13 +183,21 @@ Edit `main/waveshare_rgb_lcd_port.h`:
    - Check pin connections
    - Verify ESP-IDF installation
    - Check serial monitor for error messages
+   - Ensure backlight GPIO pin (13) is properly connected
 
 2. **Touch not working**:
-   - Enable touch controller in `lvgl_port.h`
-   - Check I2C pin connections
-   - Verify GT911 driver configuration
+   - ✅ **GT911 I2C Address Issue (FIXED)**: The GT911 uses address 0x5D or 0x14 based on INT pin state during reset
+   - ✅ **Proper Reset Sequence (IMPLEMENTED)**: Must hold INT high/low during reset release
+   - Check I2C pin connections (SDA: GPIO 8, SCL: GPIO 9)
+   - Verify GT911 pull-up resistors (4.7kΩ recommended)
+   - Check GT911 reset and interrupt pins (RST: GPIO 4, INT: GPIO 6)
 
-3. **Build errors**:
+3. **ESP32-S3 crashes during boot**:
+   - ✅ **I2C Conflicts (FIXED)**: Separated backlight (GPIO) from touch (I2C)
+   - ✅ **Proper Initialization Order (IMPLEMENTED)**: Backlight → Display → Touch → LVGL
+   - ✅ **Lower I2C Speed (IMPLEMENTED)**: 100kHz for touch initialization
+
+4. **Build errors**:
    - Ensure ESP-IDF 6.0 is properly installed
    - Check component dependencies
    - Verify target is set to `esp32s3`
