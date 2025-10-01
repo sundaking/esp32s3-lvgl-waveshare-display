@@ -1,0 +1,109 @@
+# ESP-IDF build artifacts
+build/
+sdkconfig
+sdkconfig.old
+dependencies.lock
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+compile_commands.json
+Makefile
+
+# Ninja build files
+.ninja_deps
+.ninja_log
+build.ninja
+
+# GDB files
+.gdbinit
+gdbinit
+
+# Flasher args files
+flasher_args.json
+flash_args
+app-flash_args
+bootloader-flash_args
+partition-table-flash_args
+
+# Flash encryption key files
+flash_encryption_key.bin
+
+# Project description files
+project_description.json
+
+# Component dependencies
+managed_components/
+
+# Python virtual environments
+venv/
+env/
+.venv/
+
+# Node.js dependencies (if using web tools)
+node_modules/
+
+# Backup files
+*.bak
+*.backup
+
+# Core dump files
+core
+core.*
+
+# LVGL specific
+lv_conf.h
+
+# Custom user files
+custom_config.h
+
+# Test artifacts
+test_results/
+coverage/
+
+# Documentation build artifacts
+docs/_build/
+htmlcov/
+
+# Temporary ESP-IDF files
+esp-idf/
+esp32s3-idf/
+
+# Partition table binaries
+partition-table.bin
+
+# Bootloader binaries
+bootloader.bin
+
+# Application binaries
+*.bin
+*.elf
+*.map
+
+# Flash args files
+*-flash_args
