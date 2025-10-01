@@ -82,7 +82,6 @@ esp32s3-lvgl-waveshare-display/
 ├── components/                   # ESP-IDF components
 │   ├── lvgl__lvgl/              # LVGL library
 │   └── espressif__esp_lcd_touch_gt911/ # GT911 touch driver
-├── CODEX.md                     # Implementation guide and documentation
 ├── .gitignore                   # Git ignore rules
 ├── CMakeLists.txt              # Project CMake configuration
 └── sdkconfig.defaults          # Default SDK configuration
@@ -129,7 +128,6 @@ Edit `main/waveshare_rgb_lcd_port.h`:
 
 ## 📚 Documentation
 
-- **[CODEX.md](./CODEX.md)** - Complete implementation guide and troubleshooting
 - **[ESP-IDF Documentation](https://docs.espressif.com/projects/esp-idf/en/stable/esp32s3/)** - Official ESP-IDF docs
 - **[LVGL Documentation](https://docs.lvgl.io/)** - LVGL graphics library docs
 
@@ -181,9 +179,8 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 📞 Support
 
 For issues and questions:
-1. Check the [CODEX.md](./CODEX.md) implementation guide
-2. Review ESP-IDF and LVGL documentation
-3. Create an issue in this repository
+1. Review ESP-IDF and LVGL documentation
+2. Create an issue in this repository
 
 ---
 
